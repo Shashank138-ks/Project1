@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Profile - ADISHA SCOOP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>ADISHA SCOOP</h1>
+        <nav>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="#profile">Profile</a>
+            <a href="#orders">Order History</a>
+            <a href="#loyalty">Loyalty</a>
+            <a href="{{ url_for('login') }}">Logout</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="profile">
+            <h2>My Profile</h2>
+            <div id="profile-info" class="profile-card">
+                <!-- Profile info will be loaded here -->
+            </div>
+        </section>
+
+        <section id="orders">
+            <h2>Order History</h2>
+            <div id="order-history">
+                <!-- Order history will be loaded here -->
+            </div>
+        </section>
+
+        <section id="loyalty">
+            <h2>Loyalty Program</h2>
+            <div id="loyalty-info">
+                <!-- Loyalty info will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Load customer profile data
+        async function loadProfile() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const customerId = urlParams.get('id');
+
+            if (!customerId) {
+                document.getElementById('profile-info').innerHTML = '<p>Customer ID not provided</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/customer/${customerId}`);
+                const data = await response.json();
+
+                document.getElementById('profile-info').innerHTML = `
+                    <div class="customer-details">
+                        <h3>${data.name}</h3>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>Phone:</strong> ${data.phone}</p>
+                        <p><strong>Member Since:</strong> ${new Date(data.created_date).toLocaleDateString()}</p>
+                        <p><strong>Loyalty Points:</strong> ${data.loyalty_points}</p>
+                        <p><strong>Total Orders:</strong> ${data.total_orders}</p>
+                        <p><strong>Total Spent:</strong> ₹${data.total_spent}</p>
+                        ${data.favorite_flavor ? `<p><strong>Favorite Flavor:</strong> ${data.favorite_flavor}</p>` : ''}
+                    </div>
+                `;
+
+                // Load order history
+                let ordersHtml = '<div class="orders-grid">';
+                if (data.order_history.length > 0) {
+                    data.order_history.forEach(order => {
+                        ordersHtml += `
+                            <div class="order-card">
+                                <h4>${order.item}</h4>
+                                <p>₹${order.price}</p>
+                                <p>${new Date(order.order_date).toLocaleDateString()}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    ordersHtml += '<p>No orders yet</p>';
+                }
+                ordersHtml += '</div>';
+                document.getElementById('order-history').innerHTML = ordersHtml;
+
+                // Load loyalty rewards
+                loadLoyaltyRewards(data.loyalty_points);
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('profile-info').innerHTML = '<p>Error loading profile</p>';
+            }
+        }
+
+        async function loadLoyaltyRewards(currentPoints) {
+            try {
+                const response = await fetch('/loyalty-rewards');
+                const rewards = await response.json();
+
+                let rewardsHtml = `<div class="loyalty-status">
+                    <h3>Your Loyalty Status</h3>
+                    <p>You have <strong>${currentPoints}</strong> points</p>
+                    <div class="rewards-list">`;
+
+                rewards.forEach(reward => {
+                    const canRedeem = currentPoints >= reward.points;
+                    rewardsHtml += `
+                        <div class="reward-item ${canRedeem ? 'available' : 'locked'}">
+                            <h4>${reward.reward}</h4>
+                            <p>${reward.points} points ${canRedeem ? '(Available!)' : '(Locked)'}</p>
+                        </div>
+                    `;
+                });
+
+                rewardsHtml += '</div></div>';
+                document.getElementById('loyalty-info').innerHTML = rewardsHtml;
+
+            } catch (error) {
+                console.error('Error loading loyalty rewards:', error);
+            }
+        }
+
+        // Load profile on page load
+        document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
+</body>
+</html>

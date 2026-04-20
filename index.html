@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Multilingual Translator</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+    <div class="page-shell">
+        <div class="hero-card">
+            <h1>🌐 AI Multilingual Translator</h1>
+            <p class="subtitle">Translate text into major languages plus Tulu with a polished interface and clear error handling.</p>
+
+            <label for="inputText">Enter Text</label>
+            <textarea id="inputText" placeholder="Type your sentence here..."></textarea>
+
+            <label for="language">Choose a language</label>
+            <select id="language">
+                <option value="hi">Hindi</option>
+                <option value="kn">Kannada</option>
+                <option value="ta">Tamil</option>
+                <option value="te">Telugu</option>
+                <option value="fr">French</option>
+                <option value="tcy">Tulu</option>
+            </select>
+
+            <button id="translateButton" onclick="translateText()">Translate Now</button>
+
+            <div class="result-panel">
+                <h2>Translated Text</h2>
+                <div id="output" class="output">Your translated text will appear here.</div>
+            </div>
+
+            <div class="notes">
+                <p><strong>Note:</strong> Tulu support is included in the language selector. If the translation backend does not support Tulu, a friendly error will appear.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function translateText() {
+            const text = document.getElementById("inputText").value.trim();
+            const target = document.getElementById("language").value;
+            const output = document.getElementById("output");
+
+            if (!text) {
+                output.innerText = "Please enter text to translate.";
+                output.classList.add("error");
+                return;
+            }
+
+            output.innerText = "Translating...";
+            output.classList.remove("error");
+
+            fetch("/translate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ text, target })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.error || "Translation request failed.");
+                    }).catch(() => {
+                        throw new Error("Translation request failed.");
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                output.innerText = data.translated_text;
+                output.classList.remove("error");
+            })
+            .catch(error => {
+                output.innerText = "Error: " + (error.message || "An unexpected error occurred while translating.");
+                output.classList.add("error");
+            });
+        }
+    </script>
+</body>
+</html>

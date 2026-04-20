@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - ADISHA SCOOP</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>Admin Panel</h1>
+
+<h2>Orders</h2>
+<table border="1">
+<thead>
+<tr>
+<th>ID</th>
+<th>Item</th>
+<th>Price (₹)</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody id="orders-data"></tbody>
+</table>
+
+<h2>Customers</h2>
+<table border="1">
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Phone</th>
+<th>Loyalty Points</th>
+<th>Joined</th>
+</tr>
+</thead>
+<tbody id="customers-data"></tbody>
+</table>
+
+<script>
+// Load orders
+fetch("/admin/orders")
+.then(res=>res.json())
+.then(data=>{
+let table=document.getElementById("orders-data");
+data.forEach(o=>{
+table.innerHTML+=`
+<tr>
+<td>${o.id}</td>
+<td>${o.item}</td>
+<td>₹${o.price}</td>
+<td>${o.order_date}</td>
+</tr>`;
+});
+});
+
+// Load customers
+fetch("/admin/customers")
+.then(res=>res.json())
+.then(data=>{
+let table=document.getElementById("customers-data");
+data.forEach(c=>{
+table.innerHTML+=`
+<tr>
+<td>${c.id}</td>
+<td>${c.name}</td>
+<td>${c.email}</td>
+<td>${c.phone}</td>
+<td>${c.loyalty_points}</td>
+<td>${c.created_date}</td>
+</tr>`;
+});
+});
+</script>
+
+</body>
+</html>
