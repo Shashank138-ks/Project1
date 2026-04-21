@@ -26,12 +26,12 @@ function renderProducts() {
         if (p.discount_percent > 0) {
             const discountedPrice = p.price * (1 - p.discount_percent / 100);
             priceHtml = `
-                <span class="product-price">₹${discountedPrice.toFixed(2)}</span>
-                <span class="product-original-price">₹${p.price.toFixed(2)}</span>
+                <span class="product-price">$${discountedPrice.toFixed(2)}</span>
+                <span class="product-original-price">$${p.price.toFixed(2)}</span>
             `;
             discountHtml = `<span class="product-discount-badge">-${p.discount_percent}%</span>`;
         } else {
-            priceHtml = `<span class="product-price">₹${p.price.toFixed(2)}</span>`;
+            priceHtml = `<span class="product-price">$${p.price.toFixed(2)}</span>`;
         }
 
         return `
@@ -44,8 +44,9 @@ function renderProducts() {
                         <div class="product-rating">★ ${p.rating.toFixed(1)}</div>
                         ${discountHtml}
                     </div>
-                    <div class="product-price-container" style="margin-bottom: 15px;">
-                        ${priceHtml}
+                    <div class="product-price-container" style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>${priceHtml}</div>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase;">${p.category}</span>
                     </div>
                     <button class="add-to-cart-btn" onclick="addToCart(${p.id})">Add to Cart</button>
                 </div>
@@ -96,11 +97,11 @@ function updateCartUI() {
                 <div class="cart-item">
                     <div class="cart-item-info">
                         <h4>${item.name}</h4>
-                        <p>${item.quantity} x ₹${finalPrice.toFixed(2)}</p>
+                        <p>${item.quantity} x $${finalPrice.toFixed(2)}</p>
                         <button class="remove-item" onclick="removeFromCart(${item.id})">Remove</button>
                     </div>
                     <div class="cart-item-price">
-                        ₹${(item.quantity * finalPrice).toFixed(2)}
+                        $${(item.quantity * finalPrice).toFixed(2)}
                     </div>
                 </div>
             `;
@@ -121,9 +122,9 @@ function updateCartUI() {
 
     const finalTotal = subtotal - totalDiscountAmount;
 
-    document.getElementById('cart-subtotal').innerText = `₹${subtotal.toFixed(2)}`;
-    document.getElementById('cart-discount').innerText = `-₹${totalDiscountAmount.toFixed(2)}`;
-    document.getElementById('cart-total').innerText = `₹${finalTotal.toFixed(2)}`;
+    document.getElementById('cart-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+    document.getElementById('cart-discount').innerText = `-$${totalDiscountAmount.toFixed(2)}`;
+    document.getElementById('cart-total').innerText = `$${finalTotal.toFixed(2)}`;
 }
 
 function toggleCart(forceOpen = false) {

@@ -592,8 +592,4 @@ def customer_login():
     return jsonify({"status": "error", "message": "Customer not found"}), 404
 
 if __name__ == '__main__':
-    with app.app_context():
-        # Drop and recreate for schema updates
-        db.drop_all()
-        db.create_all()
     app.run(debug=True)
